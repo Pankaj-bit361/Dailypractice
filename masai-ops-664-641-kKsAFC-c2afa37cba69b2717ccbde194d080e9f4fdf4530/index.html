@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Page</title>
+    <style>
+
+      #menu-container{
+display: grid;
+width:100%;
+grid-template-columns: repeat(4,1fr);
+gap:2%
+      }
+#menu-container img{
+  width:100%;
+  height:50vh
+}
+
+
+    </style>
+  </head>
+
+  <body>
+    <div class="nav">
+      <h1>Web Coffee Shop Menu</h1>
+      <a href="./index.html">Home</a>
+      <a href="./order.html">Ordered</a>
+    </div>
+    <div id="filter">
+      <input type="number" id="lower" />
+      <input type="number" id="upper" />
+      <button id="filter-btn">Filter</button>
+    </div>
+    <select id="sort">
+      <option value="">Sort By Price</option>
+      <option value="asc">Ascending</option>
+      <option value="desc">Descending</option>
+    </select>
+    <h1 id="alert"></h1>
+    <div id="menu-container">
+      <!-- Here Append All the Items  -->
+    </div>
+  </body>
+  <script>
+    // All your JS code for Home Page goes here
+    const url = `https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-coffee`;
+
+let menu=document.getElementById("menu-container")
+
+let lower=document.getElementById("lower")
+let upper=document.getElementById("upper")
+
+let sort=document.getElementById("sort")
+
+let filterbtn=document.getElementById("filter-btn")
+let buydata=JSON.parse(localStorage.getItem("buy"))||[]
+let alert=document.getElementById("alert")
+window.addEventListener("load",()=>{
+
+  fetch(url)
+  .then((res)=>res.json())
+  .then((res)=>{
+    console.log(res.data)
+    showdata(res.data)
+    
+    filterbtn.addEventListener("click",()=>{
+  let val1=lower.value;
+  let val2=upper.value;
+
+console.log(val1,val2)
+let filterdata=res.data.filter((item)=>val1<=item.price && val2>=item.price)
+showdata(filterdata)
+})
+
+
+  })
+
+})
+
+
+
+
+
+
+const showdata=(data)=>{
+  menu.innerHTML=""
+
+  data.forEach((item)=>{
+    
+let div=document.createElement("div")
+
+
+    let title=document.createElement("h1")
+    title.textContent=item.title
+
+    let image=document.createElement("img")
+    image.setAttribute("src",item.image)
+
+    let description=document.createElement("p")
+    description.textContent=item.description.substring(0,14)
+
+    let ingredients=document.createElement("p")
+    ingredients.textContent=item.ingredients[0]
+
+    let price=document.createElement("p")
+    price.innerText=item.price
+    
+    let button=document.createElement("button")
+    button.textContent="Buy"
+
+
+
+button.addEventListener("click",()=>{
+item.quantity=1;
+
+let flag=false
+for(var i=0;i<buydata.length;i++){
+  if(buydata[i].id==item.id){
+    flag=true;
+  }
+}
+
+
+if(flag){
+  alert.textContent="Already Placed Order"
+}else{
+  buydata.push(item)
+  localStorage.setItem("buy",JSON.stringify(buydata))
+  alert.innerText="Successfully Placed Order"
+}
+
+
+})
+
+
+div.append(image,title,ingredients,description,price,button)
+menu.append(div)
+  })
+
+}
+
+
+
+sort.addEventListener("change",(e)=>{
+  let val=(e.target.value)
+  let url=""
+  if(val=="asc"){
+    url=`https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-coffee?sort=price&order=asc`
+  }else if(val=="desc"){
+    url=`https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-coffee?sort=price&order=desc`
+  }
+console.log(url,"url")
+  fetch(url)
+  .then((res)=>res.json())
+  .then((res)=>{
+    console.log(res.data,"line133")
+    showdata(res.data)
+  })
+})
+  
+
+
+  
+  </script>
+</html>

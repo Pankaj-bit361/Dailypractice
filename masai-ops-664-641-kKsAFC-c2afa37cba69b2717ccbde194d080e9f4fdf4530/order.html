@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Page</title>
+    <style>
+      /* All Your css for Order page goes here  */
+      #order-container{
+display: grid;
+width:100%;
+grid-template-columns: repeat(4,1fr);
+gap:2%
+      }
+#order-container img{
+  width:100%;
+  height:50vh
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="nav">
+      <h1>Web Coffee Shop Menu</h1>
+      <a href="./index.html">Home</a>
+      <a href="./order.html">Ordered</a>
+    </div>
+    <h1 id="total">
+      Your total order value is :- <span id="order-total">0</span>
+    </h1>
+    <div id="cupon">
+      <input type="text" id="coupan1" />
+      <button id="btn">Add Cupon</button>
+    </div>
+    <div id="order-container">
+      <!-- Here Append All the Order Cards here-->
+    </div>
+  </body>
+  <script>
+    // All your JS code for Order Page goes here
+
+
+    
+let menu=document.getElementById("order-container")
+let span=document.getElementById("order-total")
+let coupan=document.getElementById("coupan1")
+let discount=document.getElementById("btn")
+let buydata=JSON.parse(localStorage.getItem("buy"))||[]
+
+
+
+
+
+const showdata=(data)=>{
+  menu.innerHTML=""
+  let total=0;
+  for(var i=0;i<data.length;i++){
+total+=data[i].quantity*data[i].price
+}
+span.innerText=total
+
+discount.addEventListener("click",()=>{
+  if(coupan.value=="Masai30"){
+    span.innerText= total-Math.floor(total*(30/100))
+  }else{
+    span.innerText=total
+  }
+
+})
+
+
+  data.forEach((item,index)=>{
+    
+let div=document.createElement("div")
+
+
+    let title=document.createElement("h1")
+    title.textContent=item.title
+
+    let image=document.createElement("img")
+    image.setAttribute("src",item.image)
+
+    let description=document.createElement("p")
+    description.textContent=item.description.substring(0,14)
+
+    let ingredients=document.createElement("p")
+    ingredients.textContent=item.ingredients[0]
+
+    let price=document.createElement("p")
+    price.innerText=item.price
+
+    
+    let quantity=document.createElement("span")
+     quantity.innerText=item.quantity
+    
+    let plus=document.createElement("button")
+    plus.textContent="+"
+
+    plus.addEventListener("click",()=>{
+      buydata[index].quantity++;
+      localStorage.setItem("buy",JSON.stringify(buydata))
+showdata(buydata)
+
+    })
+
+    let minus=document.createElement("button")
+    minus.textContent="-"
+minus.addEventListener("click",()=>{
+  buydata[index].quantity--;
+      localStorage.setItem("buy",JSON.stringify(buydata))
+showdata(buydata)
+})
+
+
+    let button=document.createElement("button")
+    button.textContent="Cancel"
+button.addEventListener("click",()=>{
+
+  buydata.splice(index,1)
+  localStorage.setItem("buy",JSON.stringify(buydata))
+  showdata(buydata)
+
+})
+
+div.append(image,title,ingredients,description,price,plus,quantity,minus,button)
+menu.append(div)
+  })
+
+}
+
+showdata(buydata)
+
+  </script>
+</html>
